@@ -5,7 +5,8 @@
 Term: Fall 2018
 
 + Team : Section 1, Group 2
-+ **NYC Taxi Data**: + Team members
++ **NYC Taxi Data**: 
++ Team members
 	+ Yingqiao Zhang
 	+ Hongru Liu
 	+ Liu Han
@@ -19,6 +20,13 @@ Term: Fall 2018
   + The two statistical explorations are added in two new taps, which consist of heatmaps (focus on taxi driving direction analysis) and statstical graphs (focus on fare). From these exlorations, users are able to get a rough estimation on how much fare and time they would cost. 
   + The layers of map have also been adjusted to make the interaction more clearly and logically.
 
++ **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The contribution for every team member is following:
+	+ Yingqiao Zhang
+	+ Hongru Liu
+	+ Liu Han
+	+ Hengyang Lin
+	+ Bailey Pierson
+	
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
 ```
