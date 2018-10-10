@@ -22,7 +22,7 @@ Term: Fall 2018
 
 + **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The contribution for every team member is following:
 	+ Yingqiao Zhang: 
-	+ Hongru Liu: Combine all parts of both server.R and ui.R; Rrwrite the ui.R.
+	+ Hongru Liu: Combine all parts of global.R, server.R, as well as ui.R; Rrwrite the ui.R.
 	+ Liu Han:
 	+ Hengyang Lin:
 	+ Bailey Pierson:
