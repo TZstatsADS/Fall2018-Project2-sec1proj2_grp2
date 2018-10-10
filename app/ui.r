@@ -44,7 +44,7 @@ navbarPage("NYC TAXI", id="nav",
                         ## Others ######################################################
                         conditionalPanel(condition = "input.CF.indexOf('count')>-1|input.CF.indexOf('FPD')>-1|input.CF.indexOf('cluster1')>-1|input.CF.indexOf('cash')>-1",
                                          absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,draggable = TRUE, top = 60, left = 0, right = "auto", bottom = "auto",width = 330, height = "auto",
-                                                       h2("Panal"),
+                                                   
                                                        selectInput("days", "Days", c("All Day", "Business Day", "Not Business Day"),selected = "All Day"),
                                                        selectInput("subway","Subway Station",choices =list("Do not appear" = 1, "Show all stations" = 2, "Show unique station" = 3), selected = 1),
                                                        selectInput("boroSelect", "Borough for 5 Largest Fares by Distance",c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island", "All"), selected = "All"),
