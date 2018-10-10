@@ -7,11 +7,11 @@ Term: Fall 2018
 + Team : Section 1, Group 2
 + **NYC Taxi Data**: 
 + Team members
-	+ Yingqiao Zhang
-	+ Hongru Liu
-	+ Liu Han
-	+ Hengyang Lin
-	+ Bailey Pierson
+	+ Yingqiao Zhang yz3209@columbia.edu
+	+ Hongru Liu hl3148@columbia.edu
+	+ Liu Han lh2862@columbia.edu
+	+ Hengyang Lin hl3116@columbia.edu
+	+ Bailey Pierson bp2471@columbia.edu
 
 + **Project summary**: Building upon a prior version of an application, we improved app usability by collapsing multiple tabs into one central window for interactive map exploration and by extending functionality to include new data elements and well as a heat map visualization and statistical Analysis.
 
@@ -21,11 +21,11 @@ Term: Fall 2018
   + The layers of map have also been adjusted to make the interaction more clearly and logically.
 
 + **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The contribution for every team member is following:
-	+ Yingqiao Zhang
-	+ Hongru Liu
-	+ Liu Han
-	+ Hengyang Lin
-	+ Bailey Pierson
+	+ Yingqiao Zhang: 
+	+ Hongru Liu: Combine all parts of both server.R and ui.R; Rrwrite the ui.R.
+	+ Liu Han:
+	+ Hengyang Lin:
+	+ Bailey Pierson:
 	
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
