@@ -1,42 +1,122 @@
-library(shiny)
-library(leaflet)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
+source("../app/global.R")
+
+##ui part#########################################################################
+
+navbarPage("NYC TAXI", id="nav", 
+           ## Interactive Map ####################################################
+           tabPanel("Interactive Map",
+                    div(class="outer",
+                        tags$head(
+                          ## Include our custom CSS ##
+                          includeCSS("styles.css"),
+                          includeScript("gomap.js")),
+                        leafletOutput("map", width="100%", height="100%"),
+                        
+                        ## Layers ##
+                        absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,draggable = F, top = 60, left = "auto", right = 0, bottom = "auto",width = 160, height = 220,
+                                      radioButtons("CF", label = strong("Layers"),choices = c("Probability" = "Prob", "Trip Direction" = "Heatmap","Count Number" = "count", "Fare Per Distance" = "FPD","Cluster" = "cluster1" ,"Cash Paying Percentage" = "cash"),selected = "Prob")
+                        ),
+                        
+                        ## Probability&Recommand Position ##############################
+                        conditionalPanel(condition = "input.CF.indexOf('Prob')>-1",
+                                         absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,draggable = TRUE, top = 60, left = 0, right = "auto", bottom = "auto",width = 330, height = "auto",
+                                                      h2("Recommand Locations to Get a Taxi"),
+                                                      radioButtons("type",strong("Result Type"),choices=c("Heatmap","Points"),selected="Heatmap"),
+                                                      selectInput("pd2", strong("Pick up or Drop off"), c("Pick up", "Drop off"),selected = "Pick up"),
+                                                      sliderInput("radius_pos", strong("Set Radius of the Near Fileds"), min=0, max=500, value = 250, step=10),
+                                                      conditionalPanel(condition="input.type=='Points'",sliderInput("time", strong("Set Time"),min = 0, max = 23, value = 9, step = 1,animate = FALSE)),
+                                                      strong(textOutput("pos")),
+                                                      textOutput("lng"),
+                                                      textOutput("lat"))
+                        ),
+                        
+                        ## Direction Heatmap ###########################################
+                        conditionalPanel(condition = "input.CF.indexOf('Heatmap')>-1",
+                                         absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,draggable = TRUE, top = 60, left = 0, right = "auto", bottom = "auto",width = 330, height = "auto",
+                                                       h2("Trip Direction"),
+                                                       selectInput("direction", strong("Direction"),choices=c('north','south')),
+                                                       sliderInput("Amount2", strong("Number of Pickup Location"), 1, 10000, 1000, step =1000),
+                                                       sliderInput("pickuphour", strong("Pick Up Time"), 0, 23, 0, step =1)
+                                                       )
+                                         ),
   
-  # Application title
-  titlePanel("2009 Manhattan Housing Sales"),
-  
-  # Sidebar with a selector input for neighborhood
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("nbhd", label = h5("Choose a Manhattan Neighborhood"), 
-                         choices = list("all neighborhoods"=0,
-                                        "Central Harlem"=1, 
-                                        "Chelsea and Clinton"=2,
-                                        "East Harlem"=3, 
-                                        "Gramercy Park and Murray Hill"=4,
-                                        "Greenwich Village and Soho"=5, 
-                                        "Lower Manhattan"=6,
-                                        "Lower East Side"=7, 
-                                        "Upper East Side"=8, 
-                                        "Upper West Side"=9,
-                                        "Inwood and Washington Heights"=10), 
-                         selected = 0)
-      #sliderInput("p.range", label=h3("Price Range (in thousands of dollars)"),
-      #            min = 0, max = 20000, value = c(200, 10000))
-    ),
-    # Show two panels
-    mainPanel(
-      #h4(textOutput("text")),
-      h3(code(textOutput("text1"))),
-      tabsetPanel(
-        # Panel 1 has three summary plots of sales. 
-        tabPanel("Sales summary", plotOutput("distPlot")), 
-        # Panel 2 has a map display of sales' distribution
-        tabPanel("Sales map", plotOutput("distPlot1"))),
-      leafletOutput("map", width = "80%", height = "400px")
-    )
- )
-))
+                        ## Others ######################################################
+                        conditionalPanel(condition = "input.CF.indexOf('count')>-1|input.CF.indexOf('FPD')>-1|input.CF.indexOf('cluster1')>-1|input.CF.indexOf('cash')>-1",
+                                         absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,draggable = TRUE, top = 60, left = 0, right = "auto", bottom = "auto",width = 330, height = "auto",
+                                                       h2("Panal"),
+                                                       selectInput("days", "Days", c("All Day", "Business Day", "Not Business Day"),selected = "All Day"),
+                                                       selectInput("subway","Subway Station",choices =list("Do not appear" = 1, "Show all stations" = 2, "Show unique station" = 3), selected = 1),
+                                                       selectInput("boroSelect", "Borough for Top 5 counts/FPD",c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island", "All"), selected = "All"),
+                                                       #checkboxInput("opt","Optional",value=FALSE),
+                                                       #conditionalPanel("input.opt=='false'" ),
+                                                       #conditionalPanel("input.opt=='true'",
+                                                       checkboxInput("showhr","Show hours",value=FALSE),
+                                                       conditionalPanel(condition = "input.showhr==false"),
+                                                       conditionalPanel(condition = "input.showhr==true",sliderInput("hr_adjust","Choose the time of the day:",min = 0,max = 23, value = NULL, step = 1)),
+                                                       checkboxInput("top15count", "Top 5 Count", FALSE),
+                                                       checkboxInput("top15FPD", "Top 5 FPD", FALSE)
+                                                       #checkboxInput(inputId = "showbr",label = strong("Show Borough for Top 5 counts/FPD"),value = FALSE)
+                                                       #conditionalPanel(condition = "input.showbr==false"),
+                                                       #conditionalPanel(condition = "input.showbr==true",selectInput("boroSelect", "Borough for Top 5 counts/FPD",c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island", "All"), selected = "All")
+                                                       )
+                        )
+                    )
+           ),
+                     
+           ## Dynamic Map #######################################################
+           tabPanel("Dynamic Map",
+                    div(class="outer",
+                        tags$head(
+                          # Include our custom CSS
+                          includeCSS("styles.css"),
+                          includeScript("gomap.js")
+                        ),
+                        leafletOutput("map2", width="100%", height="100%"),
+                        absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                                      draggable = TRUE, top = 60, left = 20, right = "auto", bottom = "auto",width = 330, height = "auto",
+                                      h2("Dynamic map of NYC taxi hourly flow change"),
+                                      selectInput("pd", "Pick up or Drop off", c("Pick up", "Drop off", "All"), selected = "Pick up"),
+                                      textInput("choose date", "Choose date", "1/1/2015"),
+                                      sliderInput("hours", "Hours of Day:", 
+                                                  min = 0, max = 23, value = 0, step = 1,
+                                                  animate=animationOptions(interval = 500)),
+                                      helpText("Click play button to see dynamic flow data")
+                        )
+                    )
+           ),
+           ######
+           tabPanel('Statistical Analysis',
+                    
+                    sidebarLayout(      
+                      
+                      sidebarPanel(
+                        selectInput("method", "Payment Method:", 
+                                    choices=c('cash','noncash')),
+                        selectInput("type2", "Pickup or Dropoff:", 
+                                    choices=c('pickup','dropoff')),
+                        hr()
+                      ),
+                      
+                      # Create a spot for the barplot
+                      mainPanel(
+                        plotlyOutput('plot2'),
+                        br(),
+                        br(),
+                        plotlyOutput('payment_type')
+                      )
+                    )),
+           
+           ## Data Explorer ###################################################
+           tabPanel("Data Explorer",
+                    hr(),
+                    DT::dataTableOutput("rawtable"),
+                    hr(),
+                    DT::dataTableOutput('dynamicdata'),
+                    hr()
+           )
+)
+
+
+
 
