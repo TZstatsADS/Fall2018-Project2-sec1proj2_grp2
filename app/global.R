@@ -42,7 +42,7 @@ label = list(label1 = c("<100","100-1000","1000~10,000","10,000~100,000","100,00
              label2 = c("0-1","2-3","3-4","4-5","5-6","6","7+"),
              label3 = c("<0.4","0.4~0.6",">0.6"))
 
-title = list(t1 = "Pick Up Numbers", t2 = "Fair Per Distance",t3  = "PercentagePayingCash")
+title = list(t1 = "Pick Up Frequency", t2 = "Fare by Distance",t3  = "Percent Cash Payment")
 
 vars <- c("Business Day" = 1,"Not Business Day" = 2)
 
