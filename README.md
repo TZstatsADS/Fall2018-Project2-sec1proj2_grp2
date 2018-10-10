@@ -13,6 +13,9 @@ Term: Fall 2018
 	+ Hengyang Lin hl3116@columbia.edu
 	+ Bailey Pierson bp2471@columbia.edu
 
++ **Link to app**:
+ https://aaronlin.shinyapps.io/app3/
+
 + **Project summary**: Building upon a prior version of an application, we improved app usability by collapsing multiple tabs into one central window for interactive map exploration and by extending functionality to include new data elements and well as a heat map visualization and statistical Analysis.
 
 + **Project Improvement**: We improved this project by adding one function and two statistical exploration. 
