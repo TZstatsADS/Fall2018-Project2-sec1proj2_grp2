@@ -24,9 +24,9 @@ Term: Fall 2018
   + The layers of map have also been adjusted to make the interaction more clearly and logically.
 
 + **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The contribution for every team member is following:
-	+ Yingqiao Zhang: Write heatmap function and Scatter plot in tab "Statistical Analysis"; 
-	Adjust Layers in tab "Dynamic Map";
-	Presenter
+	+ Yingqiao Zhang: Write heatmap function and Scatter plot in tab "Statistical Analysis";
+Adjust Layers in tab "Dynamic Map";
+Presenter
 	+ Hongru Liu: Arrange code including files "global.r", "server.r" and "ui.r"; Adjust UI
 	+ Liu Han: Write heatmap function in tab "Localized Map".
 	+ Hengyang Lin: 
