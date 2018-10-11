@@ -24,10 +24,10 @@ Term: Fall 2018
   + The layers of map have also been adjusted to make the interaction more clearly and logically.
 
 + **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The contribution for every team member is following:
-	+ Yingqiao Zhang: Write heatmap function and Scatter plot in tab "Statistical Analysis";          Adjust Layers in tab "Dynamic Map";          Presenter
+	+ Yingqiao Zhang: Write heatmap function and Scatter plot in tab "Statistical Analysis"; Adjust Layers in tab "Dynamic Map"; Presenter
 	+ Hongru Liu: Arrange code including files "global.r", "server.r" and "ui.r"; Adjust UI
 	+ Liu Han: Write heatmap function in tab "Localized Map".
-	+ Hengyang Lin: 
+	+ Hengyang Lin: Design and write tab "Localized Map" and tab "Statistical Analysis"; Write Picking-up taxi position recommendation function.
 	+ Bailey Pierson:
 	
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
