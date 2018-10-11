@@ -23,7 +23,7 @@ Term: Fall 2018
   + The two statistical explorations are added in two new taps, which consist of heatmaps (focus on taxi driving direction analysis) and statstical graphs (focus on fare). From these exlorations, users are able to get a rough estimation on how much fare and time they would cost. 
   + The layers of map have also been adjusted to make the interaction more clearly and logically.
 
-+ **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The contribution for every team member is following:
++ **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The tab ""Interactive Map", tab "Dynamic Map" and tab "Data Explorer" are from old version. The contribution for every team member is as following:
 	+ Yingqiao Zhang: Write heatmap function and Scatter plot in tab "Statistical Analysis" (server.R); Adjust Layers in tab "Dynamic Map" (ui.R); Presenter
 	+ Hongru Liu: Arrange code (global.R); Adjust UI (ui.R)
 	+ Liu Han: Write heatmap function in tab "Localized Map" (server.R).
