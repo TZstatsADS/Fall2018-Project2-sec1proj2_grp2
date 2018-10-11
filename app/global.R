@@ -1,5 +1,4 @@
 
-#setwd("../")
 
 ##Install and load needed libraries#########################################
 
@@ -48,18 +47,18 @@ vars <- c("Business Day" = 1,"Not Business Day" = 2)
 
 ##Load data##############################################################
 
-load('../output/myShape1.RData')
+load('myShape1.RData')
 subdat<-spTransform(myShape1, CRS("+init=epsg:4326"))
-dynamicdata = fread("../data/pickupDropoff date_hour.csv", header = TRUE, stringsAsFactors=F)
-dataa<-fread("../data/rawdata.csv",header = T)
+dynamicdata = fread("pickupDropoff date_hour.csv", header = TRUE, stringsAsFactors=F)
+dataa<-fread("rawdata.csv",header = T)
 
-load('../output/count_seperated.RData')
-load('../output/FPD_seperated.RData')
+load('count_seperated.RData')
+load('FPD_seperated.RData')
 rownames(count_result) = subdat@data$NTACode
 
-subway1 = read.csv("../data/sub.csv", header = TRUE, stringsAsFactors = F)
-subway2 = read.csv("../data/sub2.csv", header = TRUE, stringsAsFactors = F)
-payper = read.csv("../data/Data_frame_of_summary.csv")
+subway1 = read.csv("sub.csv", header = TRUE, stringsAsFactors = F)
+subway2 = read.csv("sub2.csv", header = TRUE, stringsAsFactors = F)
+payper = read.csv("Data_frame_of_summary.csv")
 
 count_result1 <- as.data.frame(count_result[,,1])
 

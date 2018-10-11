@@ -1,5 +1,5 @@
 
-source("../app/global.R")
+source("global.r")
 
 ## Server Part #########################################################################
 
@@ -89,27 +89,14 @@ shinyServer(function(input, output,session) {
       # shadowAnchorX = 4, shadowAnchorY = 62
     )
     
-    ######
-    
+    #####
     pic1<-leaflet(subdat) %>%
-      clearMarkers() %>% clearShapes() %>% clearWebGLHeatmap() %>%
       setView(lat=40.7128, lng=-74.0059, zoom=10) %>%
-      ## Add Locate Me botton ##
-      addEasyButton(easyButton(
-        position = "bottomleft",
-        icon="fa-crosshairs", title="Locate Me",
-        onClick=JS("function(btn, map){ map.locate({setView: true});alert('Locate your position?');map.setZoom(17); }"))) %>%
-      ## Add Measure botton ##
-      addMeasure(
-        position = "bottomleft",
-        primaryLengthUnit = "meters",
-        primaryAreaUnit = "sqmeters",
-        activeColor = "#3D535D",
-        completedColor = "#7D4479")%>%
       addProviderTiles('CartoDB.Positron') 
-
+    
+    
     if (input$CF == "count"){
-      pic1<-pic1 %>%
+      pic1 <- pic1 %>%
         addPolygons(fillColor = ~pal(count), color = 'grey', weight = 1, 
                     popup = popup1, fillOpacity = .6, group = group1) %>%
         addLegend(position = "bottomright",
@@ -119,7 +106,7 @@ shinyServer(function(input, output,session) {
                   title = title[[1]])
     }
     else if (input$CF == "FPD"){
-      pic1<-pic1 %>%
+      pic1 <- pic1 %>%
         addPolygons(fillColor = ~pal_FPD(FPD), color = 'grey', weight = 1, 
                     popup = popup2, fillOpacity = .6, group = group2) %>%
         addLegend(position = 'bottomright',
@@ -144,14 +131,6 @@ shinyServer(function(input, output,session) {
                   labels = label[[3]], ## legend labels (only min and max)
                   opacity = 0.6,      ## transparency again
                   title = title[[3]])
-    }
-
-    else if (input$CF == "Prob"){
-        
-    }
-    
-    else if (input$CF == "Heatmap"){
-      
     }
   
     ## TOP5 ##    
@@ -188,163 +167,6 @@ shinyServer(function(input, output,session) {
 
   })
   
-    ## Probability Heat Map ##
-    observeEvent(input$map_click, {
-    click <- input$map_click
-    
-    output$pos <- renderText({"Coordinates of Click"})
-    output$lng <- renderText({paste0(" Longitude: ", click$lng)})
-    output$lat <- renderText({paste0(" Latitude: " , click$lat)})
-    
-    
-    if(input$type=="Heatmap"&input$CF=="Prob"){  
-      map_new <- leafletProxy("map") %>%
-        clearShapes() %>% clearMarkers() %>% 
-        addMarkers(lng = click$lng, lat = click$lat) %>% 
-        addCircles(lng = click$lng, lat = click$lat, radius = input$radius_pos, 
-                   fillOpacity = 0.2, stroke = FALSE)
-      
-      
-      dat_drop_inside <- dynamicdata[abs(dropoff_longitude - click$lng)*111320 <  input$radius_pos & 
-                                       abs(dropoff_latitude - click$lat)*111190 < input$radius_pos]
-      dat_pick_inside <- dynamicdata[abs(pickup_longitude - click$lng)*111320 <  input$radius_pos & 
-                                       abs(pickup_latitude - click$lat)*111190 < input$radius_pos]
-      if(nrow(dat_drop_inside) > 0 & input$pd == "Drop off"){
-      
-        map_new <- map_new %>% clearWebGLHeatmap() %>%
-          addWebGLHeatmap(lng=dat_drop_inside$dropoff_longitude, lat = dat_drop_inside$dropoff_latitude,opacity = 0.7, size = 30)
-      }
-      if(nrow(dat_pick_inside) > 0 & input$pd == "Pick up"){
-        
-        map_new <- map_new %>% clearWebGLHeatmap() %>%
-          addWebGLHeatmap(lng=dat_pick_inside$pickup_longitude, lat = dat_pick_inside$pickup_latitude, opacity = 0.7, size=30, alphaRange = 0.5)
-      }
-      
-      map_new
-    }
-    })
-  
-  ## Recommand Locations ##
-  getdistance <- function(destination, ori){
-    lon1 = ori[2]*pi/180
-    lat1 = ori[1]*pi/180
-    lon2 = destination[2]*pi/180
-    lat2 = destination[1]*pi/180
-    deltaLat = lat2 - lat1
-    deltaLon = lon2 - lon1
-    a = sin(deltaLat/2)^2 + cos(lat1) * cos(lat2) * sin(deltaLon/2)^2
-    c = 2 * asin(sqrt(a))
-    EARTH_RADIUS = 6371
-    return (c * EARTH_RADIUS * 1000)
-    }
-    
-    observe({
-      origin <- c(40.756197, -73.97644)
-      event <- input$map_click
-      #if(is.null(event)){
-      #  warn <- "Please select a valid postion"
-      #  leafletProxy("map") %>%
-      #    addPopups(lat = origin[1], lng = origin[2], popup = warn, 
-      #              options = popupOptions(closeButton = TRUE))
-      #  return()
-      #}
-      #else{
-        origin <- c(event$lat, event$lng)
-      #}
-      radius <- input$radius_pos
-      Time <- input$time
-      if(input$type=="Points"&input$CF=="Prob"){
-      if(input$pd2 == "Pick up") {
-        if(input$hours != 0){
-          dat <- filter(dynamicdata, pickup_hour <= input$hours + 1 & pickup_hour >= input$hours - 1)
-          dat <- dat[,c(2,1)] #may change dataset
-        }
-        else{
-          dat <- filter(dynamicdata, pickup_hour == 23 | pickup_hour <= 1)
-          dat <- dat[,c(2,1)] #may change dataset
-        }
-      }
-      else{
-        if(input$hours != 0){
-          dat <- filter(dynamicdata, dropoff_hour <= input$hours + 1 & dropoff_hour >= input$hours - 1)
-          dat <- dat[,c(6,5)] #may change dataset
-        }
-        else{
-          dat <- filter(dynamicdata, dropoff_hour == 23 | dropoff_hour <= 1)
-          dat <- dat[,c(6,5)] #may change dataset
-        }
-      }
-      
-      dis <- function(destination){
-        return(getdistance(destination, origin))
-      }
-      
-      
-      in_radius.log <- apply(dat, MARGIN = 1, FUN = dis) <= radius
-      in_radius.dat <- dat[in_radius.log, ]
-      
-      colnames(in_radius.dat) <- c("latitude","longitude")
-      
-      if(nrow(in_radius.dat) >= 5){
-        cluster <- kmeans(in_radius.dat, 5)
-        out <- data.frame(cluster$centers)
-      }
-      else{
-        warn <- "Please select a valid postion(not efficient data here)"
-        leafletProxy("map") %>%
-          clearPopups() %>%
-          addPopups(lat = origin[1], lng = origin[2], popup = warn, 
-                    options = popupOptions(closeButton = TRUE))
-        out <- data.frame(in_radius.dat)
-      }
-      
-      leafletProxy("map", data = out) %>%
-        clearMarkers() %>% clearShapes() %>% clearWebGLHeatmap() %>%
-        addMarkers(~longitude, ~latitude) %>%
-        addCircleMarkers(lng = origin[2], lat = origin[1], radius = 5, color = "red") %>%
-        clearShapes() %>%
-        addCircles(lng = origin[2], lat = origin[1], radius = input$radius_pos)
-      }
-    })
-
-    ## Direction Heatmap ##
-    observe({
-      amount2 <- reactive({amount2 <- input$Amount2})
-      pickuphour <- reactive({pickuphour <- input$pickuphour})
-      #amount2 <- inout$Amount2
-      #pickuphour <- input$pickuphour
-      if(input$CF=="Heatmap") {
-        map_new2<-leafletProxy("map")
-      if(input$direction=='south'){
-        directiondata<-filter(dynamicdata,dynamicdata$dropoff_latitude<dynamicdata$pickup_latitude, dynamicdata$pickup_hour==pickuphour())
-        directiondata<-directiondata[sample(1:dim(directiondata)[1],amount2(),replace = T),]
-        #output$map <- renderLeaflet({
-        #map_new2<-leaflet(directiondata[sample(1:dim(directiondata)[1],amount2(),replace = T),]) %>%
-        #    clearMarkers() %>% clearShapes() %>% clearWebGLHeatmap() %>%
-        #    setView(lat=40.7128, lng=-74.0059, zoom=11) %>%
-            #map_new2<-leafletProxy("map")%>%
-        #    addProviderTiles(providers$CartoDB.DarkMatter) %>%
-        #    addWebGLHeatmap(lng=~pickup_longitude, lat=~pickup_latitude, size = 300, unit="m",alphaRange = 0.5)
-        #})
-      }
-      if(input$direction=='north'){
-        directiondata<-filter(dynamicdata,dynamicdata$dropoff_latitude>dynamicdata$pickup_latitude, dynamicdata$pickup_hour==pickuphour())
-        directiondata<-directiondata[sample(1:dim(directiondata)[1],amount2(),replace = T),]
-      }
-      #output$map <- renderLeaflet({
-      map_new2<-map_new2%>%
-        clearMarkers() %>% clearShapes() %>% clearWebGLHeatmap() %>%
-        setView(lat=40.7128, lng=-74.0059, zoom=11) %>%
-        #map_new2<-leafletProxy("map")%>%
-        addProviderTiles(providers$CartoDB.DarkMatter) %>%
-        addWebGLHeatmap(lng=directiondata$pickup_longitude, lat=directiondata$pickup_latitude, size = 300, unit="m",alphaRange = 0.5)
-        #})
-    map_new2
-      }
-    })
-  
-  ## Dynamic Map ################################################################
-
   observe({
     event <- input$map_shape_click
     if (is.null(event))
@@ -358,7 +180,7 @@ shinyServer(function(input, output,session) {
     
     output$districttimeplot <- renderPlot({
       if (nrow(rtest) == 0) {
-        return(NULL)
+        return()
       }
       if (input$days == "All Day"){
         count_resultNTA = count_result[which(rownames(count_result) == rtest$NTACode),,]
@@ -385,159 +207,279 @@ shinyServer(function(input, output,session) {
       
     })
   })
-    
-    
-    ######
-    
-    output$map2 <- renderLeaflet({
-      leaflet() %>%
-        setView(lat=40.7128, lng=-74.0059, zoom=11) %>%
+  
+  
+
+    ##dynamic map#######################################################################
+  output$map2 <- renderLeaflet({
+    leaflet() %>%
+      setView(lat=40.7128, lng=-74.0059, zoom=11) %>%
       # Base groups
-      addTiles(group = "default") %>%
-        addProviderTiles(providers$Stamen.Toner, group = "blackwhite") %>%
-        addProviderTiles(providers$Stamen.TonerLite, group = "grey")%>%
+    addTiles(group = "default") %>%
+      addProviderTiles(providers$Stamen.Toner, group = "blackwhite") %>%
+      addProviderTiles(providers$Stamen.TonerLite, group = "grey")%>%
       # Layers control
-      addLayersControl(
+    addLayersControl(
         baseGroups = c("default", "blackwhite", "grey"),
         overlayGroups = c("points", "region"),
         options = layersControlOptions(collapsed = FALSE)
-      )
-    })
-    
-    drawvalue <- reactive({
-      if (input$pd == 'pick up'){
-        t <- filter(dynamicdata, pickup_hour == input$hours, pickup_date == "1/1/2015")
-        return(t)
-      }
-      else{
-        t <- filter(dynamicdata, dropoff_hour == input$hours, dropoff_date == "1/1/2015")
-        return(t)
-      }
-    })
+    )
+  })
   
-    observe({
-      
-      radius <-  100
-      if (input$pd == 'Pick up')  {
-        t <- filter(dynamicdata, pickup_hour == input$hours, pickup_date == input$`choose date`)
-        longitudepmax <- max(t$pickup_longitude)
-        latitudepmax <- max(t$pickup_latitude)
-        longitudepmin <- min(t$pickup_longitude)
-        latitudepmin <- min(t$pickup_latitude)
-        leafletProxy("map2", data = t) %>%
-          clearShapes() %>%  
-          addCircles(~pickup_longitude, ~pickup_latitude,radius = radius, 
-                     stroke=FALSE, fillOpacity=0.8,fillColor = "green",
-                     popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
-                                                 '<strong>latitude </strong><br>',
-                                                 round(t$pickup_longitude,5),
-                                                 '&nbsp&nbsp&nbsp',
-                                                 round(t$pickup_latitude,5))),
-                     group='points') %>%
-          addRectangles(
-            lng1=longitudepmax, lat1=latitudepmax,
-            lng2=longitudepmin, lat2=latitudepmin,
-            fillColor = "green",group='region')
-        }
-      else if (input$pd == 'Drop off')  {
-        t <- filter(dynamicdata, dropoff_hour == input$hours, dropoff_date == input$`choose date`)
-        longitudedmax <- max(t$dropoff_longitude)
-        latitudedmax <- max(t$dropoff_latitude)
-        longitudedmin <- min(t$dropoff_longitude)
-        latitudedmin <- min(t$dropoff_latitude)
-        leafletProxy("map2", data = t) %>%
-          clearShapes() %>%
-          addCircles(~dropoff_longitude, ~dropoff_latitude, radius=radius,
-                     stroke=FALSE, fillOpacity=0.8,fillColor = "red",
-                     popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
-                                                 '<strong>latitude </strong><br>',
-                                                 round(t$dropoff_longitude,5),
-                                                 '&nbsp&nbsp&nbsp',
-                                                 round(t$dropoff_latitude,5))),
-                     group = 'points') %>%
-          addRectangles(
-            lng1=longitudedmax, lat1=latitudedmax,
-            lng2=longitudedmin, lat2=latitudedmin,
-            fillColor = "red",
-            color = "red",group = 'region'
-          ) 
-      }
-      else if (input$pd == "All"){
-        t <- filter(dynamicdata, dropoff_hour == input$hours | pickup_hour == input$hours, 
-                    dropoff_date == input$`choose date` | pickup_date == input$`choose date`)
-        longitudepmax <- max(t$pickup_longitude)
-        latitudepmax <- max(t$pickup_latitude)
-        longitudepmin <- min(t$pickup_longitude)
-        latitudepmin <- min(t$pickup_latitude)
-        longitudedmax <- max(t$dropoff_longitude)
-        latitudedmax <- max(t$dropoff_latitude)
-        longitudedmin <- min(t$dropoff_longitude)
-        latitudedmin <- min(t$dropoff_latitude)
-        
-        leafletProxy("map2", data = t) %>%
-          clearShapes() %>%
-          addCircles(~dropoff_longitude, ~dropoff_latitude, radius=radius,
-                     stroke=FALSE, fillOpacity=0.8,fillColor = "red",
-                     popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
-                                                 '<strong>latitude </strong><br>',
-                                                 round(t$dropoff_longitude,5),
-                                                 '&nbsp&nbsp&nbsp',
-                                                 round(t$dropoff_latitude,5))),
-                     group='points') %>%
-          addCircles(~pickup_longitude, ~pickup_latitude, radius=radius,
-                     stroke=FALSE, fillOpacity=0.8,fillColor = "green",
-                     popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
-                                                 '<strong>latitude </strong><br>',
-                                                 round(t$pickup_longitude,5),
-                                                 '&nbsp&nbsp&nbsp',
-                                                 round(t$pickup_latitude,5))),
-                     group = 'points') %>%
-          addRectangles(
-            lng1=longitudepmax, lat1=latitudepmax,
-            lng2=longitudepmin, lat2=latitudepmin,
-            fillColor = "green",group='region'
-          ) %>%
-          addRectangles(
-            lng1=longitudedmax, lat1=latitudedmax,
-            lng2=longitudedmin, lat2=latitudedmin,
-            fillColor = "red",
-            color = "red",group='region'
-          )
-      }
-      
-    })
-    
-  ## Data Explorer ################################################################
-
-  ## Histogram ##
-    
-  observe({
-    type2 <- reactive({type2 <- input$type2})
-    if(input$type2=='pickup'){
-      output$payment_type <- renderPlotly({
-        plot_ly(x = dataa$pickup_hour,type = 'histogram')
-      })
-    } 
-    if(input$type2=='dropoff'){
-      output$payment_type<-renderPlotly({
-        plot_ly(x = dataa$dropoff_hour,type = 'histogram')
-      })
+  drawvalue <- reactive({
+    if (input$pd == 'pick up'){
+      t <- filter(dynamicdata, pickup_hour == input$hours, pickup_date == "1/1/2015")
+      return(t)
+    }
+    else{
+      t <- filter(dynamicdata, dropoff_hour == input$hours, dropoff_date == "1/1/2015")
+      return(t)
     }
   })
   
-  dataa$time<-ifelse(dataa$pickup_hour>=6&dataa$pickup_hour<=18,'day','night')
-    output$plot2 <- renderPlotly({
-      plot_ly(data = filter(dataa,dataa$payment_type==ifelse(input$method=='cash',1,0)),
-              x = ~trip_distance,y = ~fare_amount,color = ~time)})
+  observe({
+    
+    radius <-  100
+    if (input$pd == 'Pick up')  {
+      t <- filter(dynamicdata, pickup_hour == input$hours, pickup_date == input$`choose date`)
+      longitudepmax <- max(t$pickup_longitude)
+      latitudepmax <- max(t$pickup_latitude)
+      longitudepmin <- min(t$pickup_longitude)
+      latitudepmin <- min(t$pickup_latitude)
+      leafletProxy("map2", data = t) %>%
+        clearShapes() %>%  
+        addCircles(~pickup_longitude, ~pickup_latitude,radius = radius, 
+                   stroke=FALSE, fillOpacity=0.8,fillColor = "green",
+                   popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
+                                               '<strong>latitude </strong><br>',
+                                               round(t$pickup_longitude,5),
+                                               '&nbsp&nbsp&nbsp',
+                                               round(t$pickup_latitude,5))),
+                   group='points') %>%
+        addRectangles(
+          lng1=longitudepmax, lat1=latitudepmax,
+          lng2=longitudepmin, lat2=latitudepmin,
+          fillColor = "green",group='region')
+    }
+    else if (input$pd == 'Drop off')  {
+      t <- filter(dynamicdata, dropoff_hour == input$hours, dropoff_date == input$`choose date`)
+      longitudedmax <- max(t$dropoff_longitude)
+      latitudedmax <- max(t$dropoff_latitude)
+      longitudedmin <- min(t$dropoff_longitude)
+      latitudedmin <- min(t$dropoff_latitude)
+      leafletProxy("map2", data = t) %>%
+        clearShapes() %>%
+        addCircles(~dropoff_longitude, ~dropoff_latitude, radius=radius,
+                   stroke=FALSE, fillOpacity=0.8,fillColor = "red",
+                   popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
+                                               '<strong>latitude </strong><br>',
+                                               round(t$dropoff_longitude,5),
+                                               '&nbsp&nbsp&nbsp',
+                                               round(t$dropoff_latitude,5))),
+                   group = 'points') %>%
+        addRectangles(
+          lng1=longitudedmax, lat1=latitudedmax,
+          lng2=longitudedmin, lat2=latitudedmin,
+          fillColor = "red",
+          color = "red",group = 'region'
+        ) 
+    }
+    else if (input$pd == "All"){
+      t <- filter(dynamicdata, dropoff_hour == input$hours | pickup_hour == input$hours, 
+                  dropoff_date == input$`choose date` | pickup_date == input$`choose date`)
+      longitudepmax <- max(t$pickup_longitude)
+      latitudepmax <- max(t$pickup_latitude)
+      longitudepmin <- min(t$pickup_longitude)
+      latitudepmin <- min(t$pickup_latitude)
+      longitudedmax <- max(t$dropoff_longitude)
+      latitudedmax <- max(t$dropoff_latitude)
+      longitudedmin <- min(t$dropoff_longitude)
+      latitudedmin <- min(t$dropoff_latitude)
+      
+      leafletProxy("map2", data = t) %>%
+        clearShapes() %>%
+        addCircles(~dropoff_longitude, ~dropoff_latitude, radius=radius,
+                   stroke=FALSE, fillOpacity=0.8,fillColor = "red",
+                   popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
+                                               '<strong>latitude </strong><br>',
+                                               round(t$dropoff_longitude,5),
+                                               '&nbsp&nbsp&nbsp',
+                                               round(t$dropoff_latitude,5))),
+                   group='points') %>%
+        addCircles(~pickup_longitude, ~pickup_latitude, radius=radius,
+                   stroke=FALSE, fillOpacity=0.8,fillColor = "green",
+                   popup = as.character(paste0('<strong>longitude </strong>&nbsp&nbsp',
+                                               '<strong>latitude </strong><br>',
+                                               round(t$pickup_longitude,5),
+                                               '&nbsp&nbsp&nbsp',
+                                               round(t$pickup_latitude,5))),
+                   group = 'points') %>%
+        addRectangles(
+          lng1=longitudepmax, lat1=latitudepmax,
+          lng2=longitudepmin, lat2=latitudepmin,
+          fillColor = "green",group='region'
+        ) %>%
+        addRectangles(
+          lng1=longitudedmax, lat1=latitudedmax,
+          lng2=longitudedmin, lat2=latitudedmin,
+          fillColor = "red",
+          color = "red",group='region'
+        )
+    }
+    
+  })
+    
+    ######localized map##################################################################
+    output$map3 <- renderLeaflet({
+      leaflet() %>%
+        setView(lat = 40.756197, lng= -73.97644, zoom = 11) %>%
+        addTiles(group = "Recommend Positions") %>%
+        addProviderTiles(providers$Stamen.Toner, group = "Local Heatmap") %>%
+        addLayersControl(
+          baseGroups = c("Recommend Positions", "Local Heatmap"),
+          options = layersControlOptions(collapsed = FALSE)
+        ) %>%
+        addEasyButton(easyButton(
+          icon="fa-crosshairs", title="Locate Me",
+          onClick=JS("function(btn, map){ map.locate({setView: true});map.setZoom(16); }"))) %>%
+        addMeasure(
+          position = "bottomleft",
+          primaryLengthUnit = "meters",
+          primaryAreaUnit = "sqmeters",
+          activeColor = "#3D535D",
+          completedColor = "#7D4479")
+    })
+    
+    getdistance <- function(destination, ori){
+      lon1 = ori[2]*pi/180
+      lat1 = ori[1]*pi/180
+      lon2 = destination[2]*pi/180
+      lat2 = destination[1]*pi/180
+      deltaLat = lat2 - lat1
+      deltaLon = lon2 - lon1
+      a = sin(deltaLat/2)^2 + cos(lat1) * cos(lat2) * sin(deltaLon/2)^2
+      c = 2 * asin(sqrt(a))
+      EARTH_RADIUS = 6371
+      return (c * EARTH_RADIUS * 1000)
+    }
     
     
-    output$rawtable <- DT::renderDataTable({
-      DT::datatable(dataa)
+    observe({
+      origin <- c(40.756197, -73.97644)
+      event <- input$map3_click
+      if(is.null(event)){
+        return()
+      }
+      else{
+        origin <- c(event$lat, event$lng)
+      }
+      radius <- 230 #better get from UI
+      Time <- input$time
+      
+      if(input$pod == "Pick up"){
+        dat <- filter(dynamicdata, pickup_hour == input$hours)
+        dat <- dat[,c(2,1)] #may change dataset
+      }
+      else{
+        dat <- filter(dynamicdata, dropoff_hour == input$hours)
+        dat <- dat[,c(6,5)] #may change dataset
+      }
+      
+      
+      dis <- function(destination){
+        return(getdistance(destination, origin))
+      }
+      in_radius.log <- apply(dat, MARGIN = 1, FUN = dis) <= radius
+      in_radius.dat <- dat[in_radius.log, ]
+      
+      colnames(in_radius.dat) <- c("latitude","longitude")
+      
+      rec_points <- 5
+      
+      if(nrow(in_radius.dat) > rec_points){
+        cluster <- kmeans(in_radius.dat, rec_points)
+        out <- data.frame(cluster$centers)
+        out <- rbind(out, in_radius.dat)
+      }
+      else{
+        warn <- "Please select a valid postion(not enough data here)"
+        leafletProxy("map3") %>%
+          clearPopups() %>%
+          addPopups(lat = origin[1], lng = origin[2], popup = warn, 
+                    options = popupOptions(closeButton = TRUE))
+        
+        out <- data.frame(latitude = origin[1], longitude = origin[2])
+      }
+      
+      leafletProxy("map3", data = out) %>%
+        clearMarkers() %>%
+        addMarkers(out[1:min(nrow(out), rec_points),]$longitude, out[1:min(nrow(out), rec_points),]$latitude, 
+                   label = "Recommended Postion to Call Taxi", group = "Recommend Positions") %>%
+        addCircleMarkers(lng = origin[2], lat = origin[1], radius = 5, color = "red") %>%
+        clearShapes() %>%
+        addCircles(lng = origin[2], lat = origin[1], radius = 230) %>%
+        clearWebGLHeatmap() %>%
+        addWebGLHeatmap(lng = ~longitude, lat = ~latitude, 
+                        opacity = 0.8, size = 100, group = "Local Heatmap")
+      
     })
-    output$dynamicdata <- DT::renderDataTable({
-      DT::datatable(dynamicdata)
-    })
+    
+  ## Statistical Analysis###################################################################
+
+
+  
+  getNewdata <- reactive({
+    DorN <- ifelse(input$DorN == "Day", 1, 0)
+    NSdirec <- ifelse(input$NSdirec == "North", 1, -1)
+    EWdirec <- ifelse(input$EWdirec == "West", 1, -1)
+    newdat <- filter(.data = dataa,
+                       sign(pickup_hour >= 7 & dropoff_hour <= 19) == DorN &
+                       sign(dropoff_latitude - pickup_latitude) == NSdirec &
+                       sign(dropoff_longitude - pickup_longitude) == EWdirec)
+    return(newdat)
+  })
+    
+  gethtmdata <- reactive({
+    DorN <- ifelse(input$DorN == "Day", 1, 0)
+    NSdirec <- ifelse(input$NSdirec == "North", 1, -1)
+    EWdirec <- ifelse(input$EWdirec == "West", 1, -1)
+    htmdat <- filter(.data = dynamicdata[sample(1:nrow(dynamicdata), size = 20000, replace = FALSE),],
+                     sign(pickup_hour >= 7 & dropoff_hour <= 19) == DorN &
+                       sign(dropoff_latitude - pickup_latitude) == NSdirec &
+                       sign(dropoff_longitude - pickup_longitude) == EWdirec)
+    
+    if(input$gettime == TRUE){
+      hour_htmp <- input$hour_hp
+      htmdat <- filter(.data = htmdat, pickup_hour == hour_htmp)
+    }
+    else{
+      htmdat <- htmdat[1,]
+    }
+    return(htmdat)
+  })
+  
+  output$plot1 <- renderPlot({
+    ggplot(data = getNewdata(), aes(x = trip_distance, y = fare_amount))+
+      geom_point(colour= "blue") + xlab("Trip Distance") + ylab("Fare Amount") + 
+      geom_smooth(formula = y~x, color = "red")
+  })
+  output$plot2 <- renderLeaflet({
+    leaflet() %>%
+      setView(lat=40.770186, lng=-73.950869, zoom = 12) %>%
+      addProviderTiles(providers$CartoDB.DarkMatter) #%>%
+      #fitBounds(lng1 = -74.016197, lat1 = 40.709250, lng2 = -73.923297, lat2 = 40.827160)
+  })
+  observe({
+    leafletProxy("plot2", data = gethtmdata()) %>%
+    clearWebGLHeatmap() %>%
+    addWebGLHeatmap(lng = ~pickup_longitude, lat = ~pickup_latitude, size = 300, unit="m",alphaRange = 0.5)
+  })
+
+  output$rawtable <- DT::renderDataTable({
+    DT::datatable(dataa)
+  })
+  output$dynamicdata <- DT::renderDataTable({
+    DT::datatable(dynamicdata)
+  })
 })
-
-
 
