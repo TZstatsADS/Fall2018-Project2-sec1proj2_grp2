@@ -27,7 +27,7 @@ Term: Fall 2018
 	+ Yingqiao Zhang: Write heatmap function and Scatter plots in tab "Statistical Analysis" (server.R); Add Layers in tab "Dynamic Map" (ui.R); Presenter
 	+ Hongru Liu: Arrange code (global.R); Integrate functions to tab "Interactive Map" (ui.R); Adjust UI (ui.R)
 	+ Liu Han: Write heatmap function in tab "Localized Map" (server.R).
-	+ Hengyang Lin: Design and write tab "Localized Map" and tab "Statistical Analysis" (Both server.R and ui.R); Write Picking-up taxi position recommendation function (server.R).
+	+ Hengyang Lin: Design and write tab "Localized Map" (Both server.R and ui.R) and tab "Statistical Analysis" (Both server.R and ui.R); Write Picking-up taxi position recommendation function (server.R).
 	+ Bailey Pierson:
 	
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
