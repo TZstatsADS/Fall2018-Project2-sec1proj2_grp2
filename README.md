@@ -24,7 +24,7 @@ Term: Fall 2018
   + The layers of map have also been adjusted to make the interaction more clearly and logically.
 
 + **Contribution statement**: All team members approve our work presented in this GitHub repository including this contributions statement. The tab ""Interactive Map", tab "Dynamic Map" and tab "Data Explorer" are from old version. The contribution for every team member is as following:
-	+ Yingqiao Zhang: Write heatmap function and Scatter plot in tab "Statistical Analysis" (server.R); Adjust Layers in tab "Dynamic Map" (ui.R); Presenter
+	+ Yingqiao Zhang: Write heatmap function and Scatter plots in tab "Statistical Analysis" (server.R); Add Layers in tab "Dynamic Map" (ui.R); Presenter
 	+ Hongru Liu: Arrange code (global.R); Adjust UI (ui.R)
 	+ Liu Han: Write heatmap function in tab "Localized Map" (server.R).
 	+ Hengyang Lin: Design and write tab "Localized Map" and tab "Statistical Analysis" (Both server.R and ui.R); Write Picking-up taxi position recommendation function (server.R).
