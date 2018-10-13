@@ -28,7 +28,7 @@ Term: Fall 2018
 	+ Hongru Liu: Arrange code (global.R); Integrate functions to tab "Interactive Map" (ui.R); Adjust UI (ui.R)
 	+ Liu Han: Write heatmap function in tab "Localized Map" (server.R)
 	+ Hengyang Lin: Design and write tab "Localized Map" (Both server.R and ui.R) and tab "Statistical Analysis" (Both server.R and ui.R); Write Picking-up taxi position recommendation function (server.R); Publish files
-	+ Bailey Pierson:
+	+ Bailey Pierson: Adjust UI (ui.R); Clean data files and output functions; Write up readme files and organize project GitHub; Publish files
 	
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
